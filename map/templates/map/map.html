@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>City Objects Map</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        #map { height: 600px; width: 100%; }
+        .marker {
+            background-image: url('https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png');
+            background-size: cover;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1;
+        }
+        .map-controls button {
+            background: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+            box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div class="map-controls">
+        <button id="zoom-to-bounds">Zoom to All</button>
+        <button id="reset-view">Reset View</button>
+    </div>
+    
+    <script>
+        mapboxgl.accessToken = '{{ MAPBOX_KEY }}';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',  // Fixed typo in "streets"
+            center: [37.61, 55.75],  // Default center (Moscow)
+            zoom: 12
+        });
+        
+        map.on('load', () => {
+            // Add source with clustering
+            map.addSource('city-objects', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: [
+                        {% for obj in objects %}
+                        {
+                            type: 'Feature',
+                            properties: {
+                                name: '{{ obj.name|escapejs }}',
+                                description: 'Coordinates: {{ obj.lat|floatformat:4 }}, {{ obj.lon|floatformat:4 }}'
+                            },
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [{{ obj.lon }}, {{ obj.lat }}]
+                            }
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                },
+                cluster: true,
+                clusterMaxZoom: 14,
+                clusterRadius: 50
+            });
+            
+            // Cluster layer
+            map.addLayer({
+                id: 'clusters',
+                type: 'circle',
+                source: 'city-objects',
+                filter: ['has', 'point_count'],
+                paint: {
+                    'circle-color': [
+                        'step',
+                        ['get', 'point_count'],
+                        '#51bbd6',
+                        10,
+                        '#f1f075',
+                        30,
+                        '#f28cb1'
+                    ],
+                    'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        15,
+                        10,
+                        20,
+                        30,
+                        25
+                    ]
+                }
+            });
+            
+            // Cluster count labels
+            map.addLayer({
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'city-objects',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': '{point_count_abbreviated}',
+                    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                    'text-size': 12
+                }
+            });
+            
+            // Individual points
+            map.addLayer({
+                id: 'unclustered-point',
+                type: 'circle',
+                source: 'city-objects',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                    'circle-color': '#11b4da',
+                    'circle-radius': 8,
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'
+                }
+            });
+            
+            // Click on cluster
+            map.on('click', 'clusters', (e) => {
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: ['clusters']
+                });
+                const clusterId = features[0].properties.cluster_id;
+                map.getSource('city-objects').getClusterExpansionZoom(
+                    clusterId,
+                    (err, zoom) => {
+                        if (err) return;
+                        map.easeTo({
+                            center: features[0].geometry.coordinates,
+                            zoom: zoom
+                        });
+                    }
+                );
+            });
+            
+            // Click on individual point
+            map.on('click', 'unclustered-point', (e) => {
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const name = e.features[0].properties.name;
+                const description = e.features[0].properties.description;
+                
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(`<h3>${name}</h3><p>${description}</p>`)
+                    .addTo(map);
+            });
+            
+            // Change cursor on hover
+            map.on('mouseenter', 'clusters', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'clusters', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            map.on('mouseenter', 'unclustered-point', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'unclustered-point', () => {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+        
+        // Navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
+        
+        // Zoom to bounds button
+        document.getElementById('zoom-to-bounds').addEventListener('click', () => {
+            if ({{ objects.count }} === 0) return;
+            
+            const bounds = new mapboxgl.LngLatBounds();
+            {% for obj in objects %}
+                bounds.extend([{{ obj.lon }}, {{ obj.lat }}]);
+            {% endfor %}
+            map.fitBounds(bounds, { padding: 100 });
+        });
+        
+        // Reset view button
+        document.getElementById('reset-view').addEventListener('click', () => {
+            map.flyTo({
+                center: [37.61, 55.75],
+                zoom: 12
+            });
+        });
+    </script>
+</body>
+</html>
