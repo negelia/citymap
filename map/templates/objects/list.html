@@ -1,0 +1,15 @@
+<h1>Объекты города</h1>
+
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Фильтровать</button>
+</form>
+
+<ul>
+    {% for obj in objects %}
+    <li>
+        {{ obj.name }} ({{ obj.get_object_type_display }})
+        {% if obj.approved %}✅{% else %}❌{% endif %}
+    </li>
+    {% endfor %}
+</ul>
