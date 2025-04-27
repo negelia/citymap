@@ -288,20 +288,18 @@
 
   async function saveToBackend(markerData) {
     try {
-        console.log("Sending marker data:", markerData);
-        
         const formData = new FormData();
         formData.append('lng', markerData.lng);
         formData.append('lat', markerData.lat);
         formData.append('title', markerData.title);
-        formData.append('desc', markerData.desc || '');
+        formData.append('description', markerData.description || '');
         formData.append('rating', markerData.rating);
         formData.append('category', markerData.category);
         formData.append('moderated', markerData.moderated);
         
-        const photoInput = document.getElementById("toiletPhoto");
-        if (photoInput.files[0]) {
-            formData.append('photo', photoInput.files[0]);
+        if (markerData.photo && markerData.photo.startsWith('data:')) {
+            const blob = await fetch(markerData.photo).then(r => r.blob());
+            formData.append('photo', blob, 'photo.jpg');
         }
 
         const response = await fetch('/api/markers/add/', {
@@ -312,14 +310,9 @@
             }
         });
 
-        const result = await response.json();
-        console.log("Server response:", result);
+        if (!response.ok) throw new Error('Network response was not ok');
         
-        if (result.status !== 'success') {
-            throw new Error(result.message || 'Unknown error');
-        }
-        
-        return result;
+        return await response.json();
     } catch (error) {
         console.error('Error saving marker:', error);
         return {
@@ -335,42 +328,87 @@
 
   document.getElementById("toiletForm").addEventListener("submit", async function(e) {
     e.preventDefault();
+    
     const title = document.getElementById("toiletTitle").value.trim();
-    const desc = document.getElementById("toiletDescription").value.trim();
+    const description = document.getElementById("toiletDescription").value.trim();
     const rating = +document.getElementById("toiletRating").value;
     const category = document.getElementById("toiletCategory").value;
     const moderated = isModerator() && document.getElementById("moderationCheckbox").checked;
-  
-    if (!title || !rating || !category) {
-      alert("Пожалуйста, заполните обязательные поля.");
-      return;
-    }
-  
-    const markerData = { 
-      lng: clickedLngLat.lng, 
-      lat: clickedLngLat.lat, 
-      title, 
-      desc, 
-      rating, 
-      category, 
-      moderated 
-    };
-  
-    const success = await saveToBackend(markerData);
+    const photoInput = document.getElementById("toiletPhoto");
     
-    if (success) {
-      clickedLngLat = null;
-      addMode = false;
-      e.target.reset();
-      bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-  
-      toiletCount++;
-      localStorage.setItem("toiletCount", toiletCount);
-      checkRewards();
-    } else {
-      alert("Ошибка при сохранении. Данные сохранены локально.");
+    if (!title || !rating || !category) {
+        alert("Пожалуйста, заполните обязательные поля.");
+        return;
     }
-  });
+
+    // Подготовка данных маркера
+    const markerData = { 
+        id: Date.now(), // Генерируем уникальный ID
+        lng: clickedLngLat.lng, 
+        lat: clickedLngLat.lat, 
+        title, 
+        description, 
+        rating, 
+        category, 
+        moderated,
+        photo: null
+    };
+
+    // Обработка фото
+    if (photoInput.files[0]) {
+        markerData.photo = await convertImageToBase64(photoInput.files[0]);
+    }
+
+    try {
+        // Попытка сохранить на сервере
+        const result = await saveToBackend(markerData);
+        
+        if (result.status === 'success') {
+            // Если успешно на сервере - добавляем маркер
+            addMarker(markerData);
+            backendMarkers.push(markerData);
+            localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
+            
+            // Сброс формы
+            clickedLngLat = null;
+            addMode = false;
+            e.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+
+            // Награды
+            toiletCount++;
+            localStorage.setItem("toiletCount", toiletCount);
+            checkRewards();
+        } else {
+            throw new Error(result.message || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error saving to backend:', error);
+        // Сохраняем локально если сервер недоступен
+        markerData.moderated = false; // Помечаем как немодерируемое
+        addMarker(markerData);
+        backendMarkers.push(markerData);
+        localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
+        
+        // Сброс формы
+        clickedLngLat = null;
+        addMode = false;
+        e.target.reset();
+        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+        
+        alert("Сервер недоступен. Точка сохранена локально.");
+    }
+});
+
+// Функция для конвертации изображения в base64
+function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
 
   function findNearby() {
     if (!navigator.geolocation) return alert("Геолокация не поддерживается.");

@@ -36,9 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'map.apps.MapConfig',  
-    'mapbox_location_field',
+    'map.apps.MapConfig', 
     'corsheaders',
+    'accounts',
+    'mapbox_location_field',
 ]
 
 MAPBOX_KEY = 'pk.eyJ1IjoibmVnZWxpYSIsImEiOiJjbTlia3dtajkwYnYwMmxzYXhwc2kweHI0In0.DJ_UuwkqthuDDjY2HUQpRg'
@@ -69,6 +70,7 @@ TEMPLATES = [
             ],
         },
         'DIRS': [os.path.join(BASE_DIR, 'citymap/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'map/templates')],
     },
 ]
 
@@ -136,3 +138,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+LOGIN_URL = '/accounts/login/'  
+LOGIN_REDIRECT_URL = '/map/'    
+LOGOUT_REDIRECT_URL = '/'       

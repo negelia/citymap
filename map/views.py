@@ -2,17 +2,15 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import cityObject
-from map.models import cityObject  
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from map.models import cityObject 
 import json
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
 import logging
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return redirect('map_view')
 
+@login_required
 def map_view(request):
     return render(request, 'map/map.html')
 
