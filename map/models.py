@@ -1,21 +1,24 @@
 from django.db import models
 
 class cityObject(models.Model):
-    OBJECT_TYPES = [
+    CATEGORY_CHOICES = [
         ('toilet', 'Санузел'),
-        ('water_refill', 'Пополнение воды'),
-        ('rest_area', 'Зона отдыха'),
+        ('water', 'Пополнение воды'),
+        ('rest', 'Зона отдыха'),
     ]
     
-    name = models.CharField(max_length=100)
+    lng = models.FloatField()
     lat = models.FloatField()
-    lon = models.FloatField()
-    approved = models.BooleanField(default=False)
-    object_type = models.CharField(
-        max_length=20,
-        choices=OBJECT_TYPES,
-        default='toilet',
-    )
-
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='markers/', blank=True, null=True)
+    rating = models.IntegerField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    moderated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
-        return self.name
+        return self.title
+    
+    class Meta:
+        db_table = 'map_cityobject'

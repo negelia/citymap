@@ -202,16 +202,25 @@
     }
   });
 
-  function addMarker({lng, lat, title, desc, photo, rating, category, moderated}) {
+  function addMarker({id, lng, lat, title, description, photo, rating, category, moderated}) {
+    let photoHtml = '';
+    if (photo) {
+      if (photo.startsWith('data:') || photo.startsWith('http')) {
+        photoHtml = `<br><img src="${photo}" style="max-width:100%;">`;
+      } else {
+        photoHtml = `<br><img src="/media/${photo}" style="max-width:100%;">`;
+      }
+    }
+  
     const popup = new mapboxgl.Popup()
       .setHTML(`
         <b>${title}</b><br>
-        ${desc}<br>
+        ${description}<br>
         Рейтинг: ${rating}/5<br>
         Категория: ${getCategoryName(category)}
-        ${photo ? `<br><img src="${photo}" style="max-width:100%;">` : ''}
+        ${photoHtml}
       `);
-
+  
     const marker = new mapboxgl.Marker({
       color: getCategoryColor(category)
     })
@@ -219,6 +228,7 @@
       .setPopup(popup)
       .addTo(map);
     
+    marker.id = id;
     marker.category = category;
     marker.moderated = moderated;
     toiletMarkers.push(marker);
@@ -251,64 +261,115 @@
     });
   }
 
-  function loadModeratedMarkers() {
+  async function loadModeratedMarkers() {
+    try {
+      const response = await fetch('/api/markers/');
+      if (response.ok) {
+        backendMarkers = await response.json();
+        backendMarkers.forEach(markerData => addMarker(markerData));
+        
+        const localMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
+        localMarkers.forEach(markerData => {
+          if (!backendMarkers.some(m => m.id === markerData.id)) {
+            addMarker(markerData);
+          }
+        });
+        return;
+      }
+    } catch (error) {
+      console.error("Error loading markers from backend:", error);
+    }
+    
+    backendMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
     backendMarkers
       .filter(m => m.moderated)
       .forEach(markerData => addMarker(markerData));
   }
 
-  function saveToBackend(markerData) {
-    backendMarkers.push(markerData);
-    localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
-  }
+  async function saveToBackend(markerData) {
+    try {
+        console.log("Sending marker data:", markerData);
+        
+        const formData = new FormData();
+        formData.append('lng', markerData.lng);
+        formData.append('lat', markerData.lat);
+        formData.append('title', markerData.title);
+        formData.append('desc', markerData.desc || '');
+        formData.append('rating', markerData.rating);
+        formData.append('category', markerData.category);
+        formData.append('moderated', markerData.moderated);
+        
+        const photoInput = document.getElementById("toiletPhoto");
+        if (photoInput.files[0]) {
+            formData.append('photo', photoInput.files[0]);
+        }
+
+        const response = await fetch('/api/markers/add/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        const result = await response.json();
+        console.log("Server response:", result);
+        
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Unknown error');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Error saving marker:', error);
+        return {
+            status: 'error',
+            message: error.message
+        };
+    }
+}
 
   function isModerator() {
     return document.getElementById("roleSelect").value === "moderator";
   }
 
-  document.getElementById("toiletForm").addEventListener("submit", function(e) {
+  document.getElementById("toiletForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     const title = document.getElementById("toiletTitle").value.trim();
     const desc = document.getElementById("toiletDescription").value.trim();
     const rating = +document.getElementById("toiletRating").value;
-    const photoInput = document.getElementById("toiletPhoto");
     const category = document.getElementById("toiletCategory").value;
     const moderated = isModerator() && document.getElementById("moderationCheckbox").checked;
-
-    if (!title || !desc || !rating || !category) {
-      alert("Пожалуйста, заполните все поля.");
+  
+    if (!title || !rating || !category) {
+      alert("Пожалуйста, заполните обязательные поля.");
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = function() {
-      const photo = reader.result || '';
-      const markerData = { 
-        lng: clickedLngLat.lng, 
-        lat: clickedLngLat.lat, 
-        title, 
-        desc, 
-        photo, 
-        rating, 
-        category, 
-        moderated 
-      };
-
-      saveToBackend(markerData);
-      if (moderated) addMarker(markerData);
-
+  
+    const markerData = { 
+      lng: clickedLngLat.lng, 
+      lat: clickedLngLat.lat, 
+      title, 
+      desc, 
+      rating, 
+      category, 
+      moderated 
+    };
+  
+    const success = await saveToBackend(markerData);
+    
+    if (success) {
       clickedLngLat = null;
       addMode = false;
       e.target.reset();
       bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-
+  
       toiletCount++;
       localStorage.setItem("toiletCount", toiletCount);
       checkRewards();
-    };
-    
-    if (photoInput.files[0]) reader.readAsDataURL(photoInput.files[0]);
-    else reader.onload();
+    } else {
+      alert("Ошибка при сохранении. Данные сохранены локально.");
+    }
   });
 
   function findNearby() {
@@ -411,6 +472,21 @@
       rewardModal.show();
     }
   }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 </body>
 </html>

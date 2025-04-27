@@ -1,4 +1,4 @@
-#!/home/askondrat@rusas.local/Python-3.13.0/citymap/venv/bin/python3
+#!/home/askondrat@rusas.local/Python-3.13.0/citymap/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1,10 +1,11 @@
 from django import forms
 from .models import cityObject
+from map.models import cityObject  
 
 class cityObjectForm(forms.ModelForm):
     class Meta:
         model = cityObject
-        fields = ['name', 'lat', 'lon', 'object_type']  
+        fields = ['title', 'lat', 'lng', 'category', 'description', 'rating', 'photo', 'moderated']
 
 class ObjectFilterForm(forms.Form):
     OBJECT_TYPES = [
