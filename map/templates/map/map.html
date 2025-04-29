@@ -66,6 +66,20 @@
       border-radius: 4px;
       box-shadow: 0 0 8px rgba(0,0,0,0.2);
     }
+
+    .btn-logout {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-logout:hover {
+  background-color: #c82333;
+  color: white;
+}
   </style>
 </head>
 <body>
@@ -76,6 +90,10 @@
     <option value="user">Пользователь</option>
     <option value="moderator">Модератор</option>
   </select>
+
+   <div class="mt-2">
+    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выйти</a>
+  </div>
 </div>
 
 <div class="map-controls">
