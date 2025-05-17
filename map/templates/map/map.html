@@ -4,477 +4,773 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Карта Туалетов</title>
+  <title>Toilet, Water & Relax</title>
 
+  <!-- Подключение шрифтов -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@400;600&family=JetBrains+Mono&display=swap');
+  </style>
+
+  <!-- Подключение Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- Подключение Mapbox -->
   <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
   <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
 
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <!-- Стили -->
+  <style>
+    /* Базовые стили */
+    :root {
+      --pink: #FF4A98;
+      --dark-pink: #e75480;
+      --darker-pink: #d1436d;
+      --black: #000;
+      --white: #fff;
+      --light-gray: #f0f0f0;
+      --gray: #ccc;
+      --dark-gray: #888;
+      --water-blue: #4287f5;
+      --rest-green: #42f551;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+      background-color: var(--white);
+      color: var(--black);
+    }
+
+    /* Стили шапки */
+    header {
+      width: 100%;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .highlight {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 500;
+      font-size: 250px;
+      color: var(--pink);
+      line-height: 0.8;
+      margin-top: 0;
+      margin-left: 10px;
+    }
+
+    /* Стили карты */
+    #map {
+      width: 100%;
+      height: 70vh;
+      background-color: var(--dark-gray);
+      margin: 20px 0;
+    }
+
+    .mapboxgl-popup-content {
+      max-width: 300px !important;
+    }
+
+    .mapboxgl-popup img {
+      max-width: 100%;
+      max-height: 150px;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: 10px;
+      z-index: 1;
+      background: var(--white);
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    }
+
+    .map-controls.left {
+      left: 10px;
+    }
+
+    .map-controls.right {
+      right: 10px;
+    }
+
+    /* Стили кнопок */
+    .menu-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      justify-content: center;
+      padding: 30px;
+      margin-bottom: 40px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .btn-pink {
+      background-color: var(--dark-pink);
+      color: var(--white);
+      border: none;
+    }
+
+    .btn-pink:hover {
+      background-color: var(--darker-pink);
+      color: var(--white);
+    }
+
+    /* Стили чата */
+    .chat-messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--gray);
+      padding: 10px;
+      background: #fffafc;
+      margin-bottom: 10px;
+    }
+
+    .chat-message {
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Адаптивные стили */
+    @media (max-width: 600px) {
+      header {
+        font-size: 36px;
+      }
+      
+      .highlight {
+        font-size: 150px;
+      }
+      
+      #map {
+        height: 250px;
+      }
+      
+      .menu-buttons {
+        padding: 15px;
+      }
+    }
+
+    /* Стили для окна аутентификации */
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    
+    .auth-box {
+      width: 320px;
+      padding: 30px;
+      border: 1px solid var(--gray);
+      border-radius: 15px;
+      text-align: center;
+      background: var(--white);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .auth-box h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 10px;
+      background: var(--light-gray);
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    
+    .tab.active {
+      background: var(--black);
+      color: var(--white);
+    }
+    
+    .form input {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+    }
+    
+    .form button {
+      width: 100%;
+      padding: 10px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    
+    .forgot {
+      font-size: 12px;
+      color: var(--dark-gray);
+      display: block;
+      margin-bottom: 10px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-
-<div class="map-controls" style="right: 10px; left: auto;">
-  <label for="roleSelect" class="form-label">Выберите роль:</label>
-  <select id="roleSelect" class="form-select">
-    <option value="user">Пользователь</option>
-    <option value="moderator">Модератор</option>
-  </select>
-
-   <div class="mt-2">
-    <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выйти</a>
-  </div>
-</div>
-
-<div class="map-controls">
-  <label for="filterSelect" class="form-label">Фильтр по категориям:</label>
-  <select id="filterSelect" class="form-select" onchange="filterMarkersByCategory()">
-    <option value="all">Все</option>
-    <option value="toilet">Санузел</option>
-    <option value="water">Пополнение воды</option>
-    <option value="rest">Зона отдыха</option>
-  </select>
-</div>
-
-<div id="map"></div>
-
-<div class="menu-buttons">
-  <button class="btn btn-pink" onclick="enableAddMode()">➕ Добавить точку</button>
-  <button class="btn btn-success" onclick="findNearby()">📍 Туалеты рядом</button>
-  <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#forumModal">💬 Форум</button>
-</div>
-
-<div class="modal fade" id="addModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="toiletForm">
-        <div class="modal-header">
-          <h5 class="modal-title">Добавить туалет</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Название</label>
-            <input type="text" class="form-control" id="toiletTitle" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Описание</label>
-            <textarea class="form-control" id="toiletDescription" rows="3"></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Фото</label>
-            <input type="file" class="form-control" id="toiletPhoto" accept="image/*">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Категория</label>
-            <select class="form-select" id="toiletCategory" required>
-              <option value="toilet">Санузел</option>
-              <option value="water">Пополнение воды</option>
-              <option value="rest">Зона отдыха</option>
-            </select>
-          </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="moderationCheckbox">
-            <label class="form-check-label" for="moderationCheckbox">Проверено модератором</label>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Рейтинг (1-5)</label>
-            <input type="number" class="form-control" id="toiletRating" min="1" max="5" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-pink">Добавить</button>
-        </div>
-      </form>
+  <!-- Окно аутентификации (только если пользователь не авторизован) -->
+  {% if not user.is_authenticated %}
+  <div id="authModal" class="auth-container">
+    <div class="auth-box">
+      <h1>Вход / Регистрация</h1>
+      <div class="tabs">
+        <button class="tab active" onclick="switchAuthTab('login')">Вход</button>
+        <button class="tab" onclick="switchAuthTab('register')">Регистрация</button>
+      </div>
+      <div class="form" id="loginForm">
+        <input type="text" placeholder="Логин">
+        <input type="password" placeholder="Пароль">
+        <button onclick="login()">Войти</button>
+      </div>
+      <div class="form hidden" id="registerForm">
+        <input type="text" placeholder="Имя">
+        <input type="email" placeholder="Email">
+        <input type="password" placeholder="Пароль">
+        <button onclick="register()">Регистрация</button>
+      </div>
+      <span class="forgot">Забыли пароль?</span>
     </div>
   </div>
-</div>
+  {% endif %}
 
-<div class="modal fade" id="forumModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Форум туалетов</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <!-- Главный контейнер -->
+  <div id="mainContainer">
+    <header>
+      Toilet, Water & Relax <span class="highlight">*</span>
+    </header>
+
+    <!-- Элементы управления картой -->
+    <div class="map-controls left">
+      <label for="filterSelect" class="form-label">Фильтр по категориям:</label>
+      <select id="filterSelect" class="form-select" onchange="filterMarkersByCategory()">
+        <option value="all">Все</option>
+        <option value="toilet">Санузел</option>
+        <option value="water">Пополнение воды</option>
+        <option value="rest">Зона отдыха</option>
+      </select>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="map-controls right">
+      <label for="roleSelect" class="form-label">Выберите роль:</label>
+      <select id="roleSelect" class="form-select">
+        <option value="user">Пользователь</option>
+        <option value="moderator">Модератор</option>
+      </select>
+
+      <div class="mt-2">
+        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Выйти</a>
       </div>
-      <div class="modal-body">
-        <input type="text" class="form-control mb-2" id="usernameInput" placeholder="Введите ваше имя">
-        <div class="chat-messages" id="chatMessages"></div>
-        <form id="chatForm" class="d-flex mt-2">
-          <input type="text" class="form-control me-2" id="chatInput" placeholder="Сообщение" required>
-          <button type="submit" class="btn btn-pink">Отправить</button>
+    </div>
+    {% endif %}
+
+    <!-- Карта -->
+    <div id="map"></div>
+
+    <!-- Кнопки меню -->
+    <div class="menu-buttons">
+      <button class="btn btn-pink" onclick="enableAddMode()">➕ Добавить точку</button>
+      <button class="btn btn-success" onclick="findNearby()">📍 Туалеты рядом</button>
+      <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#forumModal">💬 Форум</button>
+    </div>
+  </div>
+
+  <!-- Модальные окна Bootstrap -->
+  <div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="toiletForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Добавить туалет</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Название</label>
+              <input type="text" class="form-control" id="toiletTitle" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Описание</label>
+              <textarea class="form-control" id="toiletDescription" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Фото</label>
+              <input type="file" class="form-control" id="toiletPhoto" accept="image/*">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Категория</label>
+              <select class="form-select" id="toiletCategory" required>
+                <option value="toilet">Санузел</option>
+                <option value="water">Пополнение воды</option>
+                <option value="rest">Зона отдыха</option>
+              </select>
+            </div>
+            {% if user.is_authenticated and user.is_staff %}
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="moderationCheckbox">
+              <label class="form-check-label" for="moderationCheckbox">Проверено модератором</label>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label">Рейтинг (1-5)</label>
+              <input type="number" class="form-control" id="toiletRating" min="1" max="5" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-pink">Добавить</button>
+          </div>
         </form>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="rewardModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content text-center p-4">
-      <h5 class="modal-title" id="rewardText">🎉</h5>
-      <button type="button" class="btn btn-success mt-3" data-bs-dismiss="modal">Круто!</button>
+  <div class="modal fade" id="forumModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Форум туалетов</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control mb-2" id="usernameInput" placeholder="Введите ваше имя">
+          <div class="chat-messages" id="chatMessages"></div>
+          <form id="chatForm" class="d-flex mt-2">
+            <input type="text" class="form-control me-2" id="chatInput" placeholder="Сообщение" required>
+            <button type="submit" class="btn btn-pink">Отправить</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  mapboxgl.accessToken = 'pk.eyJ1IjoibmVnZWxpYSIsImEiOiJjbTlia3dtajkwYnYwMmxzYXhwc2kweHI0In0.DJ_UuwkqthuDDjY2HUQpRg'; 
-  const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v12',
-    center: [37.618423, 55.751244],
-    zoom: 12
-  });
+  <div class="modal fade" id="rewardModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content text-center p-4">
+        <h5 class="modal-title" id="rewardText">🎉</h5>
+        <button type="button" class="btn btn-success mt-3" data-bs-dismiss="modal">Круто!</button>
+      </div>
+    </div>
+  </div>
 
-  let addMode = false;
-  let clickedLngLat = null;
-  let toiletMarkers = [];
-  let toiletCount = JSON.parse(localStorage.getItem("toiletCount") || "0");
-  let backendMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
+  <script>
+    // Инициализация карты
+    mapboxgl.accessToken = 'pk.eyJ1IjoibmVnZWxpYSIsImEiOiJjbTlia3dtajkwYnYwMmxzYXhwc2kweHI0In0.DJ_UuwkqthuDDjY2HUQpRg'; 
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [37.618423, 55.751244],
+      zoom: 12
+    });
 
-  map.on('load', () => {
-    loadModeratedMarkers();
-  });
+    let addMode = false;
+    let clickedLngLat = null;
+    let toiletMarkers = [];
+    let toiletCount = JSON.parse(localStorage.getItem("toiletCount") || "0");
+    let backendMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
 
-  function enableAddMode() {
-    addMode = true;
-    alert("Нажмите на карту, чтобы добавить точку.");
-  }
-
-  map.on('click', (e) => {
-    if (addMode) {
-      clickedLngLat = e.lngLat;
-      const modal = new bootstrap.Modal(document.getElementById('addModal'));
-      modal.show();
-    }
-  });
-
-  function addMarker({id, lng, lat, title, description, photo, rating, category, moderated}) {
-    let photoHtml = '';
-    if (photo) {
-      if (photo.startsWith('data:') || photo.startsWith('http')) {
-        photoHtml = `<br><img src="${photo}" style="max-width:100%;">`;
+    // Функции для работы с аутентификацией
+    function switchAuthTab(tab) {
+      if (tab === 'login') {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('registerForm').classList.add('hidden');
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.querySelectorAll('.tab')[1].classList.remove('active');
       } else {
-        photoHtml = `<br><img src="/media/${photo}" style="max-width:100%;">`;
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('registerForm').classList.remove('hidden');
+        document.querySelectorAll('.tab')[0].classList.remove('active');
+        document.querySelectorAll('.tab')[1].classList.add('active');
       }
     }
-  
-    const popup = new mapboxgl.Popup()
-      .setHTML(`
-        <b>${title}</b><br>
-        ${description}<br>
-        Рейтинг: ${rating}/5<br>
-        Категория: ${getCategoryName(category)}
-        ${photoHtml}
-      `);
-  
-    const marker = new mapboxgl.Marker({
-      color: getCategoryColor(category)
-    })
-      .setLngLat([lng, lat])
-      .setPopup(popup)
-      .addTo(map);
     
-    marker.id = id;
-    marker.category = category;
-    marker.moderated = moderated;
-    toiletMarkers.push(marker);
-  }
+    function login() {
+      alert('Вход выполнен!');
+      hideAuthModal();
+    }
+    
+    function register() {
+      alert('Регистрация успешна!');
+      hideAuthModal();
+    }
+    
+    function hideAuthModal() {
+      document.getElementById('authModal').classList.add('hidden');
+    }
 
-  function getCategoryName(category) {
-    return {
-      'toilet': 'Санузел',
-      'water': 'Пополнение воды',
-      'rest': 'Зона отдыха'
-    }[category] || category;
-  }
+    // Функции для работы с картой
+    map.on('load', () => {
+      loadModeratedMarkers();
+    });
 
-  function getCategoryColor(category) {
-    return {
-      'toilet': '#e75480',
-      'water': '#4287f5',
-      'rest': '#42f551'
-    }[category] || '#000000';
-  }
+    function enableAddMode() {
+      addMode = true;
+      alert("Нажмите на карту, чтобы добавить точку.");
+    }
 
-  function filterMarkersByCategory() {
-    const selected = document.getElementById("filterSelect").value;
-    toiletMarkers.forEach(marker => {
-      if (selected === "all" || marker.category === selected) {
-        marker.addTo(map);
-      } else {
-        marker.remove();
+    map.on('click', (e) => {
+      if (addMode) {
+        clickedLngLat = e.lngLat;
+        const modal = new bootstrap.Modal(document.getElementById('addModal'));
+        modal.show();
       }
     });
-  }
 
-  async function loadModeratedMarkers() {
-    try {
-      const response = await fetch('/api/markers/');
-      if (response.ok) {
-        backendMarkers = await response.json();
-        backendMarkers.forEach(markerData => addMarker(markerData));
-        
-        const localMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
-        localMarkers.forEach(markerData => {
-          if (!backendMarkers.some(m => m.id === markerData.id)) {
-            addMarker(markerData);
-          }
-        });
-        return;
-      }
-    } catch (error) {
-      console.error("Error loading markers from backend:", error);
-    }
-    
-    backendMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
-    backendMarkers
-      .filter(m => m.moderated)
-      .forEach(markerData => addMarker(markerData));
-  }
-
-  async function saveToBackend(markerData) {
-    try {
-        const formData = new FormData();
-        formData.append('lng', markerData.lng);
-        formData.append('lat', markerData.lat);
-        formData.append('title', markerData.title);
-        formData.append('description', markerData.description || '');
-        formData.append('rating', markerData.rating);
-        formData.append('category', markerData.category);
-        formData.append('moderated', markerData.moderated);
-        
-        if (markerData.photo && markerData.photo.startsWith('data:')) {
-            const blob = await fetch(markerData.photo).then(r => r.blob());
-            formData.append('photo', blob, 'photo.jpg');
-        }
-
-        const response = await fetch('/api/markers/add/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Error saving marker:', error);
-        return {
-            status: 'error',
-            message: error.message
-        };
-    }
-}
-
-  function isModerator() {
-    return document.getElementById("roleSelect").value === "moderator";
-  }
-
-  document.getElementById("toiletForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    const title = document.getElementById("toiletTitle").value.trim();
-    const description = document.getElementById("toiletDescription").value.trim();
-    const rating = +document.getElementById("toiletRating").value;
-    const category = document.getElementById("toiletCategory").value;
-    const moderated = isModerator() && document.getElementById("moderationCheckbox").checked;
-    const photoInput = document.getElementById("toiletPhoto");
-    
-    if (!title || !rating || !category) {
-        alert("Пожалуйста, заполните обязательные поля.");
-        return;
-    }
-
-    // Подготовка данных маркера
-    const markerData = { 
-        id: Date.now(), // Генерируем уникальный ID
-        lng: clickedLngLat.lng, 
-        lat: clickedLngLat.lat, 
-        title, 
-        description, 
-        rating, 
-        category, 
-        moderated,
-        photo: null
-    };
-
-    // Обработка фото
-    if (photoInput.files[0]) {
-        markerData.photo = await convertImageToBase64(photoInput.files[0]);
-    }
-
-    try {
-        // Попытка сохранить на сервере
-        const result = await saveToBackend(markerData);
-        
-        if (result.status === 'success') {
-            // Если успешно на сервере - добавляем маркер
-            addMarker(markerData);
-            backendMarkers.push(markerData);
-            localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
-            
-            // Сброс формы
-            clickedLngLat = null;
-            addMode = false;
-            e.target.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-
-            // Награды
-            toiletCount++;
-            localStorage.setItem("toiletCount", toiletCount);
-            checkRewards();
+    function addMarker({id, lng, lat, title, description, photo, rating, category, moderated}) {
+      let photoHtml = '';
+      if (photo) {
+        if (photo.startsWith('data:') || photo.startsWith('http')) {
+          photoHtml = `<br><img src="${photo}" style="max-width:100%;">`;
         } else {
-            throw new Error(result.message || 'Unknown error');
+          photoHtml = `<br><img src="/media/${photo}" style="max-width:100%;">`;
         }
-    } catch (error) {
-        console.error('Error saving to backend:', error);
-        // Сохраняем локально если сервер недоступен
-        markerData.moderated = false; // Помечаем как немодерируемое
-        addMarker(markerData);
-        backendMarkers.push(markerData);
-        localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
-        
-        // Сброс формы
-        clickedLngLat = null;
-        addMode = false;
-        e.target.reset();
-        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-        
-        alert("Сервер недоступен. Точка сохранена локально.");
-    }
-});
-
-// Функция для конвертации изображения в base64
-function convertImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}
-
-  function findNearby() {
-    if (!navigator.geolocation) return alert("Геолокация не поддерживается.");
-    navigator.geolocation.getCurrentPosition(pos => {
-      const { latitude: lat, longitude: lng } = pos.coords;
-      map.flyTo({ center: [lng, lat], zoom: 15 });
+      }
+    
+      const popup = new mapboxgl.Popup()
+        .setHTML(`
+          <b>${title}</b><br>
+          ${description}<br>
+          Рейтинг: ${rating}/5<br>
+          Категория: ${getCategoryName(category)}
+          ${photoHtml}
+        `);
+    
+      const marker = new mapboxgl.Marker({
+        color: getCategoryColor(category)
+      })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map);
       
-      if (map.getSource('user-location')) {
-        map.getSource('user-location').setData({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [lng, lat]
+      marker.id = id;
+      marker.category = category;
+      marker.moderated = moderated;
+      toiletMarkers.push(marker);
+    }
+
+    function getCategoryName(category) {
+      return {
+        'toilet': 'Санузел',
+        'water': 'Пополнение воды',
+        'rest': 'Зона отдыха'
+      }[category] || category;
+    }
+
+    function getCategoryColor(category) {
+      return {
+        'toilet': 'var(--pink)',
+        'water': 'var(--water-blue)',
+        'rest': 'var(--rest-green)'
+      }[category] || '#000000';
+    }
+
+    function filterMarkersByCategory() {
+      const selected = document.getElementById("filterSelect").value;
+      toiletMarkers.forEach(marker => {
+        if (selected === "all" || marker.category === selected) {
+          marker.addTo(map);
+        } else {
+          marker.remove();
+        }
+      });
+    }
+
+    async function loadModeratedMarkers() {
+      try {
+        const response = await fetch('/api/markers/');
+        if (response.ok) {
+          backendMarkers = await response.json();
+          backendMarkers.forEach(markerData => addMarker(markerData));
+          
+          const localMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
+          localMarkers.forEach(markerData => {
+            if (!backendMarkers.some(m => m.id === markerData.id)) {
+              addMarker(markerData);
+            }
+          });
+          return;
+        }
+      } catch (error) {
+        console.error("Error loading markers from backend:", error);
+      }
+      
+      backendMarkers = JSON.parse(localStorage.getItem("backendMarkers") || "[]");
+      backendMarkers
+        .filter(m => m.moderated)
+        .forEach(markerData => addMarker(markerData));
+    }
+
+    async function saveToBackend(markerData) {
+      try {
+          const formData = new FormData();
+          formData.append('lng', markerData.lng);
+          formData.append('lat', markerData.lat);
+          formData.append('title', markerData.title);
+          formData.append('description', markerData.description || '');
+          formData.append('rating', markerData.rating);
+          formData.append('category', markerData.category);
+          formData.append('moderated', markerData.moderated);
+          
+          if (markerData.photo && markerData.photo.startsWith('data:')) {
+              const blob = await fetch(markerData.photo).then(r => r.blob());
+              formData.append('photo', blob, 'photo.jpg');
           }
-        });
-      } else {
-        map.addSource('user-location', {
-          type: 'geojson',
-          data: {
+
+          const response = await fetch('/api/markers/add/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                  'X-CSRFToken': getCookie('csrftoken')
+              }
+          });
+
+          if (!response.ok) throw new Error('Network response was not ok');
+          
+          return await response.json();
+      } catch (error) {
+          console.error('Error saving marker:', error);
+          return {
+              status: 'error',
+              message: error.message
+          };
+      }
+    }
+
+    function isModerator() {
+      return document.getElementById("roleSelect").value === "moderator";
+    }
+
+    document.getElementById("toiletForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById("toiletTitle").value.trim();
+      const description = document.getElementById("toiletDescription").value.trim();
+      const rating = +document.getElementById("toiletRating").value;
+      const category = document.getElementById("toiletCategory").value;
+      const moderated = isModerator() && document.getElementById("moderationCheckbox").checked;
+      const photoInput = document.getElementById("toiletPhoto");
+      
+      if (!title || !rating || !category) {
+          alert("Пожалуйста, заполните обязательные поля.");
+          return;
+      }
+
+      const markerData = { 
+          id: Date.now(),
+          lng: clickedLngLat.lng, 
+          lat: clickedLngLat.lat, 
+          title, 
+          description, 
+          rating, 
+          category, 
+          moderated,
+          photo: null
+      };
+
+      if (photoInput.files[0]) {
+          markerData.photo = await convertImageToBase64(photoInput.files[0]);
+      }
+
+      try {
+          const result = await saveToBackend(markerData);
+          
+          if (result.status === 'success') {
+              addMarker(markerData);
+              backendMarkers.push(markerData);
+              localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
+              
+              clickedLngLat = null;
+              addMode = false;
+              e.target.reset();
+              bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+
+              toiletCount++;
+              localStorage.setItem("toiletCount", toiletCount);
+              checkRewards();
+          } else {
+              throw new Error(result.message || 'Unknown error');
+          }
+      } catch (error) {
+          console.error('Error saving to backend:', error);
+          markerData.moderated = false;
+          addMarker(markerData);
+          backendMarkers.push(markerData);
+          localStorage.setItem("backendMarkers", JSON.stringify(backendMarkers));
+          
+          clickedLngLat = null;
+          addMode = false;
+          e.target.reset();
+          bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+          
+          alert("Сервер недоступен. Точка сохранена локально.");
+      }
+    });
+
+    function convertImageToBase64(file) {
+      return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+          reader.readAsDataURL(file);
+      });
+    }
+
+    function findNearby() {
+      if (!navigator.geolocation) return alert("Геолокация не поддерживается.");
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        map.flyTo({ center: [lng, lat], zoom: 15 });
+        
+        if (map.getSource('user-location')) {
+          map.getSource('user-location').setData({
             type: 'Feature',
             geometry: {
               type: 'Point',
               coordinates: [lng, lat]
             }
-          }
-        });
-        
-        map.addLayer({
-          id: 'user-location-circle',
-          type: 'circle',
-          source: 'user-location',
-          paint: {
-            'circle-radius': 300,
-            'circle-color': '#4287f5',
-            'circle-opacity': 0.2,
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#4287f5'
-          }
-        });
+          });
+        } else {
+          map.addSource('user-location', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lng, lat]
+              }
+            }
+          });
+          
+          map.addLayer({
+            id: 'user-location-circle',
+            type: 'circle',
+            source: 'user-location',
+            paint: {
+              'circle-radius': 300,
+              'circle-color': 'var(--water-blue)',
+              'circle-opacity': 0.2,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': 'var(--water-blue)'
+            }
+          });
+        }
+      });
+    }
+
+    // Функции для работы с чатом
+    const chatForm = document.getElementById("chatForm");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const usernameInput = document.getElementById("usernameInput");
+
+    const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    storedMessages.forEach(({ name, message }) => addChatMessage(name, message));
+
+    chatForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = usernameInput.value.trim() || "Аноним";
+      const message = chatInput.value.trim();
+      if (message) {
+        addChatMessage(name, message);
+        saveChatMessage(name, message);
+        chatInput.value = "";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       }
     });
-  }
 
-  const chatForm = document.getElementById("chatForm");
-  const chatMessages = document.getElementById("chatMessages");
-  const chatInput = document.getElementById("chatInput");
-  const usernameInput = document.getElementById("usernameInput");
-
-  const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-  storedMessages.forEach(({ name, message }) => addChatMessage(name, message));
-
-  chatForm.addEventListener("submit", function(e) {
-    e.preventDefault();
-    const name = usernameInput.value.trim() || "Аноним";
-    const message = chatInput.value.trim();
-    if (message) {
-      addChatMessage(name, message);
-      saveChatMessage(name, message);
-      chatInput.value = "";
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+    function addChatMessage(name, message) {
+      const msgEl = document.createElement("div");
+      msgEl.className = "chat-message";
+      msgEl.style.backgroundColor = stringToColor(name);
+      msgEl.innerHTML = `<span>${name}:</span> ${message} `;
+      chatMessages.appendChild(msgEl);
     }
-  });
 
-  function addChatMessage(name, message) {
-    const msgEl = document.createElement("div");
-    msgEl.className = "chat-message";
-    msgEl.style.backgroundColor = stringToColor(name);
-    msgEl.innerHTML = `<span>${name}:</span> ${message} `;
-    chatMessages.appendChild(msgEl);
-  }
-
-  function saveChatMessage(name, message) {
-    const saved = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    saved.push({ name, message });
-    localStorage.setItem("chatMessages", JSON.stringify(saved));
-  }
-
-  function stringToColor(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    const color = Math.floor(Math.abs(Math.sin(hash) * 16777215)).toString(16);
-    return "#" + "000000".substring(0, 6 - color.length) + color;
-  }
-
-  function checkRewards() {
-    const rewardText = document.getElementById("rewardText");
-    const rewardModal = new bootstrap.Modal(document.getElementById("rewardModal"));
-    if (toiletCount === 3) {
-      rewardText.innerText = "🚽 БимбоТуалет!";
-      rewardModal.show();
-    } else if (toiletCount === 5) {
-      rewardText.innerText = "🕺 ТУАЛЕТНЫЙ МАЧО!";
-      rewardModal.show();
-    } else if (toiletCount === 7) {
-      rewardText.innerText = "👑 Король Унитазов!";
-      rewardModal.show();
-    } else if (toiletCount === 10) {
-      rewardText.innerText = "🌈 Легенда Очка!";
-      rewardModal.show();
+    function saveChatMessage(name, message) {
+      const saved = JSON.parse(localStorage.getItem("chatMessages")) || [];
+      saved.push({ name, message });
+      localStorage.setItem("chatMessages", JSON.stringify(saved));
     }
-  }
 
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+    function stringToColor(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      const color = Math.floor(Math.abs(Math.sin(hash) * 16777215)).toString(16);
+      return "#" + "000000".substring(0, 6 - color.length) + color;
     }
-    return cookieValue;
-}
-</script>
+
+    // Система наград
+    function checkRewards() {
+      const rewardText = document.getElementById("rewardText");
+      const rewardModal = new bootstrap.Modal(document.getElementById("rewardModal"));
+      if (toiletCount === 3) {
+        rewardText.innerText = "🚽 БимбоТуалет!";
+        rewardModal.show();
+      } else if (toiletCount === 5) {
+        rewardText.innerText = "🕺 ТУАЛЕТНЫЙ МАЧО!";
+        rewardModal.show();
+      } else if (toiletCount === 7) {
+        rewardText.innerText = "👑 Король Унитазов!";
+        rewardModal.show();
+      } else if (toiletCount === 10) {
+        rewardText.innerText = "🌈 Легенда Очка!";
+        rewardModal.show();
+      }
+    }
+
+    // Вспомогательные функции
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+    }
+  </script>
 </body>
 </html>
