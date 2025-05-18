@@ -1,78 +1,240 @@
+/* Базовые стили */
+:root {
+  --pink: #FF4A98;
+  --dark-pink: #e75480;
+  --darker-pink: #d1436d;
+  --black: #000;
+  --white: #fff;
+  --light-gray: #f0f0f0;
+  --gray: #ccc;
+  --dark-gray: #888;
+  --water-blue: #4287f5;
+  --rest-green: #42f551;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100%;
+  font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+  background-color: var(--white);
+  color: var(--black);
+}
+
+/* Стили шапки */
+header {
+  width: 100%;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.highlight {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 500;
+  font-size: 250px;
+  color: var(--pink);
+  line-height: 0.8;
+  margin-top: 0;
+  margin-left: 10px;
+}
+
+/* Стили карты */
+#map {
+  width: 100%;
+  height: 70vh;
+  background-color: var(--dark-gray);
+  margin: 20px 0;
+}
+
+/* Стили попапа карты */
+.mapboxgl-popup-content {
+  max-width: 300px !important;
+}
+
+.mapboxgl-popup img {
+  max-width: 100%;
+  max-height: 150px;
+}
+
+/* Управления картой */
+.map-controls {
+  position: absolute;
+  top: 10px;
+  z-index: 1;
+  background: var(--white);
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+.map-controls.left {
+  left: 10px;
+}
+
+.map-controls.right {
+  right: 10px;
+}
+
+/* Стили кнопок */
+.menu-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  justify-content: center;
+  padding: 30px;
+  margin-bottom: 40px;
+  max-width: 1200px;
+}
+
+.btn-pink {
+  background-color: var(--dark-pink);
+  color: var(--white);
+  border: none;
+}
+
+.btn-pink:hover {
+  background-color: var(--darker-pink);
+  color: var(--white);
+}
+
+/* Стили чата */
+.chat-messages {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--gray);
+  padding: 10px;
+  background: #fffafc;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+/* Адаптивные стили */
+@media (max-width: 600px) {
+  header {
+    font-size: 36px;
+  }
+  
+  .highlight {
+    font-size: 150px;
   }
   
   #map {
-    height: 70vh;
-    width: 100%;
+    height: 250px;
   }
   
   .menu-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 30px;
-    background-color: #faf3f3;
+    padding: 15px;
   }
-  
-  .chat-messages {
-    height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
-    background: #fffafc;
-    margin-bottom: 10px;
-  }
-  
-  .chat-message {
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-  }
-  
-  .btn-pink {
-    background-color: #e75480;
-    color: white;
-  }
-  
-  .btn-pink:hover {
-    background-color: #d1436d;
-  }
-  
-  .mapboxgl-popup-content {
-    max-width: 300px !important;
-  }
-  
-  .mapboxgl-popup img {
-    max-width: 100%;
-    max-height: 150px;
-  }
-  
-  .map-controls {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1;
-    background: white;
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  }
-  
-  .btn-logout {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    text-decoration: none;
-    display: inline-block;
-  }
-  
-  .btn-logout:hover {
-    background-color: #c82333;
-    color: white;
-  }
+}
+
+/* Стили для окна аутентификации */
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.auth-box {
+  width: 320px;
+  padding: 30px;
+  border: 1px solid var(--gray);
+  border-radius: 15px;
+  text-align: center;
+  background: var(--white);
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-box h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  background: var(--light-gray);
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.tab.active {
+  background: var(--black);
+  color: var(--white);
+}
+
+.form input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+}
+
+.form button {
+  width: 100%;
+  padding: 10px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.forgot {
+  font-size: 12px;
+  color: var(--dark-gray);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Кнопка выхода */
+.btn-logout {
+  background-color: #dc3545;
+  color: var(--white);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+  color: var(--white);
+}
