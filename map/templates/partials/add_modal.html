@@ -1,0 +1,47 @@
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="toiletForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Добавить туалет</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Название</label>
+              <input type="text" class="form-control" id="toiletTitle" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Описание</label>
+              <textarea class="form-control" id="toiletDescription" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Фото</label>
+              <input type="file" class="form-control" id="toiletPhoto" accept="image/*">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Категория</label>
+              <select class="form-select" id="toiletCategory" required>
+                <option value="toilet">Санузел</option>
+                <option value="water">Пополнение воды</option>
+                <option value="rest">Зона отдыха</option>
+              </select>
+            </div>
+            {% if user.is_authenticated and user.is_staff %}
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="moderationCheckbox">
+              <label class="form-check-label" for="moderationCheckbox">Проверено модератором</label>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label">Рейтинг (1-5)</label>
+              <input type="number" class="form-control" id="toiletRating" min="1" max="5" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-pink">Добавить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
