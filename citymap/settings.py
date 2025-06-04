@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'map.apps.MapConfig', 
+    'map', 
     'corsheaders',
     'accounts',
     'mapbox_location_field',

@@ -1,0 +1,108 @@
+{% extends "accounts/base_auth.html" %}
+
+{% block title %}Модерация объектов{% endblock %}
+
+{% block content %}
+<div class="moderation-container">
+    <div class="moderation-header">
+        <h1>Объекты на модерации</h1>
+        <a href="{% url 'map_view' %}" class="btn btn-primary">
+            <i class="fas fa-map-marked-alt"></i> Перейти на карту
+        </a>
+    </div>
+
+    <ul class="moderation-list">
+        {% for obj in objects %}
+        <li class="moderation-item">
+            <a href="{% url 'moderate_cityobject_detail' obj.id %}">
+                {{ obj.title }} ({{ obj.created_at|date:"d.m.Y H:i" }})
+                <span class="status-badge status-{{ obj.status }}">
+                    {{ obj.get_status_display }}
+                </span>
+            </a>
+        </li>
+        {% empty %}
+        <li class="no-items">Нет объектов на модерации</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<style>
+    .moderation-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .moderation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        background: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .btn:hover {
+        background: #45a049;
+    }
+    
+    .moderation-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .moderation-item {
+        padding: 12px;
+        margin-bottom: 8px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .moderation-item a {
+        display: flex;
+        justify-content: space-between;
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .status-badge {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .status-pending {
+        background: #FFC107;
+        color: #000;
+    }
+    
+    .status-approved {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .status-rejected {
+        background: #F44336;
+        color: white;
+    }
+    
+    .no-items {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+    }
+</style>
+{% endblock %}

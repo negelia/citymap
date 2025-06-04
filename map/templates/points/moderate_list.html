@@ -1,0 +1,16 @@
+{% extends "base_auth.html" %}
+
+{% block content %}
+<h1>Точки на модерации</h1>
+<ul>
+  {% for point in points %}
+  <li>
+    <a href="{% url 'moderate_point_detail' point.id %}">
+      {{ point.title }} ({{ point.created_at }})
+    </a>
+  </li>
+  {% empty %}
+  <li>Нет точек на модерации</li>
+  {% endfor %}
+</ul>
+{% endblock %}
