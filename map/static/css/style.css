@@ -1,4 +1,4 @@
-/* Базовые стили */
+/* Общие стили для всех страниц */
 :root {
   --pink: #FF4A98;
   --dark-pink: #e75480;
@@ -20,12 +20,82 @@
 
 html, body {
   height: 100%;
-  font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: var(--white);
   color: var(--black);
 }
 
-/* Стили шапки */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+}
+
+/* Общие компоненты */
+.btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-primary {
+  background: var(--pink);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--dark-pink);
+}
+
+.btn-secondary {
+  background: var(--light-gray);
+  color: var(--black);
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--gray);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  border-color: var(--pink);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 74, 152, 0.2);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Шапка */
 header {
   width: 100%;
   padding: 10px 20px;
@@ -47,25 +117,28 @@ header {
   margin-left: 10px;
 }
 
-/* Стили карты */
+/* Карта */
 #map {
   width: 100%;
   height: 70vh;
   background-color: var(--dark-gray);
   margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-/* Стили попапа карты */
 .mapboxgl-popup-content {
   max-width: 300px !important;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
 }
 
 .mapboxgl-popup img {
   max-width: 100%;
   max-height: 150px;
+  border-radius: 4px;
 }
 
-/* Управления картой */
 .map-controls {
   position: absolute;
   top: 10px;
@@ -84,7 +157,7 @@ header {
   right: 10px;
 }
 
-/* Стили кнопок */
+/* Меню */
 .menu-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -92,21 +165,9 @@ header {
   justify-content: center;
   padding: 30px;
   margin-bottom: 40px;
-  max-width: 1200px;
 }
 
-.btn-pink {
-  background-color: var(--dark-pink);
-  color: var(--white);
-  border: none;
-}
-
-.btn-pink:hover {
-  background-color: var(--darker-pink);
-  color: var(--white);
-}
-
-/* Стили чата */
+/* Чат */
 .chat-messages {
   height: 300px;
   overflow-y: auto;
@@ -114,62 +175,38 @@ header {
   padding: 10px;
   background: #fffafc;
   margin-bottom: 10px;
+  border-radius: 8px;
 }
 
 .chat-message {
   padding: 8px 12px;
   border-radius: 8px;
   margin-bottom: 6px;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Адаптивные стили */
-@media (max-width: 600px) {
-  header {
-    font-size: 36px;
-  }
-  
-  .highlight {
-    font-size: 150px;
-  }
-  
-  #map {
-    height: 250px;
-  }
-  
-  .menu-buttons {
-    padding: 15px;
-  }
-}
-
-/* Стили для окна аутентификации */
+/* Аутентификация */
 .auth-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
+  min-height: 100vh;
+  padding: 20px;
 }
 
 .auth-box {
-  width: 320px;
-  padding: 30px;
-  border: 1px solid var(--gray);
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 30px;
   border-radius: 15px;
-  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   background: var(--white);
-  font-family: 'Inter', sans-serif;
+  text-align: center;
 }
 
-.auth-box h1 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 20px;
+.auth-title {
+  font-size: 24px;
+  margin-bottom: 25px;
 }
 
 .tabs {
@@ -186,6 +223,7 @@ header {
   cursor: pointer;
   border-radius: 10px;
   font-weight: 600;
+  font-family: 'Inter', sans-serif;
 }
 
 .tab.active {
@@ -193,23 +231,15 @@ header {
   color: var(--white);
 }
 
-.form input {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid var(--gray);
-  border-radius: 8px;
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
 }
 
-.form button {
-  width: 100%;
-  padding: 10px;
-  background: var(--black);
-  color: var(--white);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .forgot {
@@ -217,24 +247,207 @@ header {
   color: var(--dark-gray);
   display: block;
   margin-bottom: 10px;
-}
-
-.hidden {
-  display: none;
-}
-
-/* Кнопка выхода */
-.btn-logout {
-  background-color: #dc3545;
-  color: var(--white);
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
   text-decoration: none;
-  display: inline-block;
 }
 
-.btn-logout:hover {
-  background-color: #c82333;
-  color: var(--white);
+.forgot:hover {
+  color: var(--pink);
+}
+
+/* Модерация */
+.moderation-container,
+.moderation-detail-container {
+  margin: 30px auto;
+  padding: 25px;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.moderation-header,
+.moderation-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.moderation-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.moderation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.moderation-item {
+  margin-bottom: 12px;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.moderation-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.moderation-item-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--black);
+  text-decoration: none;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.item-date {
+  font-size: 13px;
+  color: var(--dark-gray);
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-pending {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #b78a00;
+}
+
+.status-approved {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.status-rejected {
+  background-color: rgba(244, 67, 54, 0.15);
+  color: #c62828;
+}
+
+.object-preview {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.object-image {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-options {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.status-option {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  border: 1px solid var(--light-gray);
+  transition: all 0.2s;
+}
+
+.comment-field {
+  width: 100%;
+  min-height: 150px;
+  padding: 15px;
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+
+.comment-field:focus {
+  border-color: var(--pink);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 74, 152, 0.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  header {
+    font-size: 36px;
+  }
+  
+  .highlight {
+    font-size: 150px;
+  }
+  
+  #map {
+    height: 250px;
+  }
+  
+  .menu-buttons {
+    padding: 15px;
+  }
+  
+  .moderation-header, 
+  .moderation-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .object-preview {
+    flex-direction: column;
+  }
+  
+  .object-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+  }
+  
+  .status-options {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-box {
+    padding: 30px 20px;
+  }
+  
+  .auth-title {
+    font-size: 20px;
+  }
+  
+  .form-input {
+    padding: 10px 12px;
+  }
 }

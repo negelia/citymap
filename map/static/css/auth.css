@@ -1,0 +1,320 @@
+/* Основные стили формы (аналогичны странице входа) */
+  .auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: var(--white);
+  }
+  
+  .auth-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: var(--white);
+    text-align: center;
+  }
+  
+  .auth-logo {
+    font-size: 24px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+  
+  .highlight {
+    color: var(--pink);
+    font-size: 30px;
+    line-height: 1;
+  }
+  
+  .auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: var(--black);
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+  
+  /* Поля формы */
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .required {
+    color: var(--pink);
+    margin-left: 3px;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  
+  .form-input:focus {
+    border-color: var(--pink);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 74, 152, 0.2);
+  }
+  
+  .form-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--dark-gray);
+    line-height: 1.4;
+  }
+  
+  /* Кнопка регистрации */
+  .auth-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--pink);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .auth-btn:hover {
+    background-color: var(--dark-pink);
+  }
+  
+  /* Футер формы */
+  .auth-footer {
+    margin-top: 20px;
+  }
+  
+  .auth-link {
+    color: var(--dark-gray);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .auth-link-btn {
+    color: var(--pink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .auth-link-btn:hover {
+    text-decoration: underline;
+  }
+  
+  /* Сообщения об ошибках */
+  .errorlist {
+    list-style: none;
+    color: var(--pink);
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: left;
+    padding: 0;
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 480px) {
+    .auth-box {
+      padding: 30px 20px;
+    }
+    
+    .auth-title {
+      font-size: 20px;
+    }
+    
+    .form-input {
+      padding: 10px 12px;
+    }
+    
+    .auth-btn {
+      padding: 10px;
+    }
+  }
+
+/* Основные стили формы */
+  .auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: var(--white);
+  }
+  
+  .auth-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: var(--white);
+    text-align: center;
+  }
+  
+  .auth-logo {
+    font-size: 24px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+  
+  .highlight {
+    color: var(--pink);
+    font-size: 30px;
+    line-height: 1;
+  }
+  
+  .auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: var(--black);
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+  
+  /* Поля формы */
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  
+  .form-input:focus {
+    border-color: var(--pink);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 74, 152, 0.2);
+  }
+  
+  /* Кнопка входа */
+  .auth-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--pink);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .auth-btn:hover {
+    background-color: var(--dark-pink);
+  }
+  
+  /* Футер формы */
+  .auth-footer {
+    margin-top: 20px;
+  }
+  
+  .auth-link {
+    color: var(--dark-gray);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .auth-link-btn {
+    color: var(--pink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .auth-link-btn:hover {
+    text-decoration: underline;
+  }
+  
+  .forgot-password {
+    display: block;
+    margin-top: 15px;
+    font-size: 13px;
+    color: var(--dark-gray);
+    text-decoration: none;
+  }
+  
+  .forgot-password:hover {
+    color: var(--pink);
+  }
+  
+  /* Сообщения об ошибках */
+  .errorlist {
+    list-style: none;
+    color: var(--pink);
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: left;
+    padding: 0;
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 480px) {
+    .auth-box {
+      padding: 30px 20px;
+    }
+    
+    .auth-title {
+      font-size: 20px;
+    }
+    
+    .form-input {
+      padding: 10px 12px;
+    }
+    
+    .auth-btn {
+      padding: 10px;
+    }
+  }

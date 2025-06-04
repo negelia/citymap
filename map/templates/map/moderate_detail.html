@@ -1,10 +1,64 @@
 {% extends "accounts/base_auth.html" %}
+{% load static %}
 
 {% block content %}
-<h1>Модерация объекта: {{ object.title }}</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Сохранить</button>
-</form>
+<link rel="stylesheet" href="{% static 'css/moderation.css' %}">
+
+<div class="moderation-detail-container">
+  <div class="moderation-detail-header">
+    <h1>Модерация объекта: <span class="object-title">{{ object.title }}</span></h1>
+    <a href="{% url 'moderate_cityobjects'|default:'#' %}" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Назад к списку
+    </a>
+  </div>
+
+  {% if object.image %}
+  <div class="object-preview">
+    <img src="{{ object.image.url }}" alt="{{ object.title }}" class="object-image">
+    <div class="object-info">
+      <p><strong>Тип:</strong> {{ object.get_type_display }}</p>
+      <p><strong>Адрес:</strong> {{ object.address }}</p>
+      <p><strong>Дата создания:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" class="moderation-form">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label>Статус модерации</label>
+      <div class="status-options">
+        {% for radio in form.status %}
+          <label class="status-option status-{{ radio.choice_value }}">
+            {{ radio.tag }}
+            <i class="fas 
+              {% if radio.choice_value == 'approved' %}fa-check-circle 
+              {% elif radio.choice_value == 'rejected' %}fa-times-circle 
+              {% else %}fa-clock{% endif %}"></i>
+            {{ radio.choice_label }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group comment-group">
+      <label for="{{ form.comment.id_for_label }}" class="comment-label">
+        Комментарий модератора
+      </label>
+      <textarea 
+        id="{{ form.comment.id_for_label }}"
+        name="{{ form.comment.name }}"
+        class="comment-field"
+        placeholder="Введите ваш комментарий...">{{ form.comment.value|default_if_none:'' }}</textarea>
+      {% if form.comment.help_text %}
+      <small class="comment-help">{{ form.comment.help_text }}</small>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn-save">
+      <i class="fas fa-save"></i> Сохранить изменения
+    </button>
+  </form>
+</div>
 {% endblock %}
